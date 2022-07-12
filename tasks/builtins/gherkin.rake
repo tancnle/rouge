@@ -3,6 +3,7 @@
 
 require 'open-uri'
 require 'json'
+require 'set'
 
 GHERKIN_SYNTAX_URI = "https://raw.githubusercontent.com/cucumber/cucumber/master/gherkin/gherkin-languages.json"
 GHERKIN_KEYWORDS_FILE = "./lib/rouge/lexers/gherkin/keywords.rb"
@@ -38,6 +39,8 @@ module Rouge
                 keywords[:examples].merge v
               when "given", "when", "then", "and", "but"
                 keywords[:step].merge v
+              when "rule"
+                keywords[:rule].merge v
               end
             end
           end

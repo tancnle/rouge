@@ -60,17 +60,18 @@ module Rouge
           reset_stack
 
           keyword = m[1]
-          keyword_tok = if self.class.keywords[:element].include? keyword
-            push :description; Keyword::Namespace
-          elsif self.class.keywords[:feature].include? keyword
-            push :feature_description; Keyword::Declaration
-          elsif self.class.keywords[:examples].include? keyword
-            push :example_description; Name::Namespace
-          else
-            Error
-          end
+          keyword_token = if self.class.keywords[:element].include?(keyword) ||
+                           self.class.keywords[:rule].include?(keyword)
+                          push :description; Keyword::Namespace
+                        elsif self.class.keywords[:feature].include? keyword
+                          push :feature_description; Keyword::Declaration
+                        elsif self.class.keywords[:examples].include? keyword
+                          push :example_description; Name::Namespace
+                        else
+                          Error
+                        end
 
-          groups keyword_tok, Punctuation
+          groups keyword_token, Punctuation
         end
       end
 
