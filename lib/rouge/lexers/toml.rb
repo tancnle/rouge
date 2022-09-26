@@ -15,14 +15,9 @@ module Rouge
       identifier = %r/(?:\S+|"[^"]+"|'[^']+')/
 
       state :basic do
-        rule %r/\s+/, Text
-        rule %r/#.*?$/, Comment
-        rule %r/(true|false)/, Keyword::Constant
+        mixin :whitespace
 
-        rule %r/(#{identifier})(\s*)(=)(\s*)(\{)/ do
-          groups Name::Namespace, Text, Operator, Text, Punctuation
-          push :inline
-        end
+        rule %r/(true|false)/, Keyword::Constant
 
         rule %r/\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z/, Literal::Date
 
@@ -37,27 +32,28 @@ module Rouge
       end
 
       state :root do
-        mixin :basic
+        mixin :whitespace
 
         rule %r/(?<!=)\s*\[.*?\]+/, Name::Namespace
 
+        mixin :key
+        mixin :value
+      end
+
+      state :key do
         rule %r/(#{identifier})(\s*)(=)/ do
-          groups Name::Property, Text, Punctuation
-          push :value
+          groups Name::Property, Text::Whitespace, Punctuation
         end
       end
 
       state :value do
-        rule %r/\n/, Text, :pop!
+        # rule %r/\n/, Text, :pop!
+
         mixin :content
       end
 
       state :content do
         mixin :basic
-
-        rule %r/(#{identifier})(\s*)(=)/ do
-          groups Name::Property, Text, Punctuation
-        end
 
         rule %r/"""/, Str, :mdq
         rule %r/"/, Str, :dq
@@ -66,6 +62,7 @@ module Rouge
         mixin :esc_str
         rule %r/\,/, Punctuation
         rule %r/\[/, Punctuation, :array
+        rule %r/\{/, Punctuation, :inline
       end
 
       state :dq do
@@ -99,14 +96,21 @@ module Rouge
       end
 
       state :array do
-        mixin :content
+        mixin :value
+
         rule %r/\]/, Punctuation, :pop!
       end
 
       state :inline do
-        mixin :content
+        mixin :key
+        mixin :value
 
         rule %r/\}/, Punctuation, :pop!
+      end
+
+      state :whitespace do
+        rule %r/\s+/, Text
+        rule %r/#.*?$/, Comment
       end
     end
   end

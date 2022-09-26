@@ -166,3 +166,11 @@ emptyTableAreAllowed = true
 name = "Nail"
 sku = 284758393
 color = "gray"
+
+[tool.poetry.dependencies]
+python = ">=3.10,<3.11"
+idna = "3.4"
+inflection = "0.5.1"
+influxdb = "5.3.1"
+requests = "2.28.1"
+pywinpty = {version = ">=1.1.0", markers = "os_name == \"nt\""}
