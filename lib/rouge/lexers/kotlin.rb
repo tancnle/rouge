@@ -25,9 +25,13 @@ module Rouge
       )
 
       name_chars = %r'[-_\p{Lu}\p{Ll}\p{Lt}\p{Lm}\p{Nl}\p{Nd}\p{Pc}\p{Cf}\p{Mn}\p{Mc}]*'
+      name_chars_with_space = %r'[-_\p{Zs}\p{Lu}\p{Ll}\p{Lt}\p{Lm}\p{Nl}\p{Nd}\p{Pc}\p{Cf}\p{Mn}\p{Mc}]*'
 
-      class_name = %r'`?[\p{Lu}]#{name_chars}`?'
-      name = %r'`?[_\p{Lu}\p{Ll}\p{Lt}\p{Lm}\p{Nl}]#{name_chars}`?'
+      # name = %r'[_\p{Lu}\p{Ll}\p{Lt}\p{Lm}\p{Nl}]#{name_chars}|`[_\p{Lu}\p{Ll}\p{Lt}\p{Lm}\p{Nl}]#{name_chars_with_space}`'
+      name = %r'[_\p{Lu}\p{Ll}\p{Lt}\p{Lm}\p{Lo}]([\p{Lu}\p{Ll}\p{Lt}\p{Lm}\p{Lo}]|_|\p{Nd})*'
+      name_with_space = %r'`[^\r\n]*`'
+
+      id = %r'#{name}|#{name_with_space}'
 
       state :root do
         rule %r'\b(companion)(\s+)(object)\b' do
@@ -84,15 +88,15 @@ module Rouge
         rule %r'""".*?"""'m, Str
         rule %r'"(\\\\|\\"|[^"\n])*["\n]'m, Str
         rule %r"'\\.'|'[^\\]'", Str::Char
-        rule %r'(@#{class_name})', Name::Decorator
-        rule %r'(#{class_name})(<)' do
+        rule %r'(@#{id})', Name::Decorator
+        rule %r'(#{id})(<)' do
           groups Name::Class, Punctuation
           push :generic_parameters
         end
-        rule class_name, Name::Class
-        rule %r'(#{name})(?=\s*[({])', Name::Function
-        rule %r'(#{name})@', Name::Decorator # label
-        rule name, Name
+        rule id, Name::Class
+        rule %r'(#{id})(?=\s*[({])', Name::Function
+        rule %r'(#{id})@', Name::Decorator # label
+        rule id, Name
       end
 
       state :package do
@@ -100,20 +104,20 @@ module Rouge
       end
 
       state :class do
-        rule class_name, Name::Class, :pop!
+        rule id, Name::Class, :pop!
       end
 
       state :function do
         rule %r'(<)', Punctuation, :generic_parameters
         rule %r'(\s+)', Text
-        rule %r'(#{class_name})(\.)' do
+        rule %r'(#{id})(\.)' do
           groups Name::Class, Punctuation
         end
-        rule name, Name::Function, :pop!
+        rule id, Name::Function, :pop!
       end
 
       state :generic_parameters do
-        rule class_name, Name::Class
+        rule id, Name::Class
         rule %r'(<)', Punctuation, :generic_parameters
         rule %r'(reified|out|in)', Keyword
         rule %r'([,:.?])', Punctuation
@@ -124,14 +128,14 @@ module Rouge
       state :property do
         rule %r'(<)', Punctuation, :generic_parameters
         rule %r'(\s+)', Text
-        rule name, Name::Property, :pop!
+        rule id, Name::Property, :pop!
       end
 
       state :destructure do
         rule %r'(,)', Punctuation
         rule %r'(\))', Punctuation, :pop!
         rule %r'(\s+)', Text
-        rule name, Name::Property
+        rule id, Name::Property
       end
 
       state :comment do

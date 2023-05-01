@@ -178,6 +178,11 @@ public interface Comparable<in T> {}
 fun anAnnotatedFunction() = {
 }
 
+@Test
+fun `adding one and two gives three`(){
+  assertEquals(3, 1+2)
+}
+
 val (a, b) = pair
 
 loop@ for (i in 1..100) {
@@ -203,3 +208,5 @@ fun foo(props: Iterable<Map.Entry<String, JsonNode>>) =
     TODO()
 
 // comment at EOF (#797)
+
+fun dude deyde =
