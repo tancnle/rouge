@@ -106,15 +106,15 @@ test_string = "You'll hate me after this - #"          # " Annoying, isn't it?
     harder_test_string = " And when \"'s are in the string, along with # \""   # "and comments are there too"
     # Things will get harder
     
-        [the.hard.bit#]
-        what? = "You don't think some user won't do that?"
+        [the.hard.'bit#']
+        'what?' = "You don't think some user won't do that?"
         multi_line_array = [
             "]",
             "Oi!\n",
             # ] Oh yes I did
             ]
 
-東京都 = 123
+'東京都' = 123
 
 # Inline table
 name = { first = "Tom", last = "Preston-Werner" }
@@ -160,6 +160,11 @@ oct         = 0o755
 oct_spacing = 0o755_777
 bin         = 0b1100
 bin_spacing = 0b0101_1100
+
+# Version number
+[packages]
+requests = "==2.25.1"
+beautifulsoup4 = "*"
 
 [[products]]
 name = "array of table"
